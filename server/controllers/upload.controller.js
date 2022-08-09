@@ -19,13 +19,13 @@ module.exports.uploadProfil = async (req, res) => {
       throw Error("max size");
     }
 
- 
-
     const findUser = async () => {
       return await UserModel.findById(req.body.userId);
     };
 
     const updateUser = async () => {
+      // const fileName = req.file.filename
+      // "./uploads/profil/" + fileName
       return await UserModel.findByIdAndUpdate(
         req.body.userId,
         {
@@ -48,19 +48,20 @@ module.exports.uploadProfil = async (req, res) => {
           console.log(
             __dirname + "/../client/public/uploads/profil/" + req.file.filename
           );
-         await unlinkProm(oldImage);
+          await unlinkProm(oldImage);
           return true;
         }
       })
       .then((resp) => {
         if (resp === true) {
-          updateUser().then((docs) => {
-            console.log("done");
-            res.send(docs);
-          })
-          .catch((err) => {
-            return res.status(500).send(err);
-          });
+          updateUser()
+            .then((docs) => {
+              console.log("done");
+              res.send(docs);
+            })
+            .catch((err) => {
+              return res.status(500).send(err);
+            });
         }
       });
   } catch (err) {

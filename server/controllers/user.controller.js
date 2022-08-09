@@ -93,27 +93,27 @@ module.exports.unfollow = async (req, res) => {
   )
     return res.status(400).send("ID unknown : " + req.params.id);
 
-    try {
-      // add to the follower list
-      await UserModel.findByIdAndUpdate(
-        req.params.id,
-        { $pull: { following: req.body.idToUnfollow } },
-        { new: true, upsert: true }
-      )
-        .then((docs) => res.status(201).json(docs))
-        .catch((err) => res.status(500).send({ message: err }));
-  
-      // add to following list
-      await UserModel.findByIdAndUpdate(
-        req.body.idToUnfollow,
-        { $pull: { followers: req.params.id } },
-        { new: true, upsert: true }
-      )
-        .then((docs) => {
-          // res.status(201).json(docs)
-        })
-        .catch((err) => res.status(500).send({ message: err }));
-    } catch (err) {
-      return res.status(500).json({ message: err });
-    }
+  try {
+    // add to the follower list
+    await UserModel.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { following: req.body.idToUnfollow } },
+      { new: true, upsert: true }
+    )
+      .then((docs) => res.status(201).json(docs))
+      .catch((err) => res.status(500).send({ message: err }));
+
+    // add to following list
+    await UserModel.findByIdAndUpdate(
+      req.body.idToUnfollow,
+      { $pull: { followers: req.params.id } },
+      { new: true, upsert: true }
+    )
+      .then((docs) => {
+        // res.status(201).json(docs)
+      })
+      .catch((err) => res.status(500).send({ message: err }));
+  } catch (err) {
+    return res.status(500).json({ message: err });
+  }
 };

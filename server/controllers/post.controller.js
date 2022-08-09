@@ -1,6 +1,10 @@
 const PostModel = require("../models/post.model");
 const UserModel = require("../models/user.model");
 const ObjectID = require("mongoose").Types.ObjectId;
+const { uploadErrors } = require("../utils/errors.utils");
+const { promisify } = require("util");
+const fs = require("fs");
+const unlinkProm = promisify(fs.unlink);
 
 module.exports.readPost = (req, res) => {
   PostModel.find((err, docs) => {
@@ -10,9 +14,28 @@ module.exports.readPost = (req, res) => {
 };
 
 module.exports.createPost = async (req, res) => {
+  if (req.file !== null) {
+    try {
+      if (typeof req.file === "undefined") {
+        throw Error("invalid file");
+      }
+
+      if (req.file.size > 500000) {
+        const path = req.file.path;
+        await unlinkProm(path);
+        throw Error("max size");
+      }
+    } catch (err) {
+      console.log(err);
+      const erros = uploadErrors(err);
+      return res.status(201).json({ erros });
+    }
+  }
+
   const newPost = new PostModel({
     posterId: req.body.posterId,
     message: req.body.message,
+    picture: req.file !== null ? "./uploads/posts" + req.file.filename : "",
     video: req.body.video,
     likers: [],
     comments: [],
